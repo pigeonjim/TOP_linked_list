@@ -30,8 +30,8 @@ class LinkedList
   end
 
   def size
-    return 0 if head.nil?
-    return 1 if head.pointer.nil?
+    return 0 if @head.nil?
+    return 1 if @head.pointer.nil?
 
     node_address = @head.object_id
     size = 0
@@ -56,7 +56,7 @@ class LinkedList
   end
 
   def pop
-    return if head.nil?
+    return if @head.nil?
 
     if @head.pointer.nil?
       @head = nil
@@ -70,8 +70,8 @@ class LinkedList
   end
 
   def to_s
-    return '' if head.nil?
-    return "#{@head.data}" if head.pointer.nil?
+    return '' if @head.nil?
+    return @head.data.to_s if head.pointer.nil?
 
     node_address = @head.object_id
     str = ''
@@ -80,5 +80,51 @@ class LinkedList
       node_address = ObjectSpace._id2ref(node_address).pointer
     end
     return str
+  end
+
+  def include?(value)
+    return false if @head.nil? || @head.data.nil?
+    return true if @head.pointer.nil? && @head.data.include?(value)
+
+    node_address = @head.pointer
+    until node_address.nil?
+      return true if ObjectSpace._id2ref(node_address).data.include?(value)
+
+      node_address = ObjectSpace._id2ref(node_address).pointer
+    end
+    return false
+  end
+
+  def find(value)
+    return nil if @head.nil? || @head.data.nil?
+
+    node_address = @head.object_id
+    counter = 0
+    until node_address.nil?
+      return counter if ObjectSpace._id2ref(node_address).data.include?(value)
+
+      node_address = ObjectSpace._id2ref(node_address).pointer
+      counter += 1
+    end
+    return nil
+  end
+
+  def insert_at(value, index)
+    return if index < 0
+    if @head.nil? || index == 0
+      prepend(Node.new(value)) 
+      return
+    elsif index > size - 1
+      append(Node.new(value))
+    else
+      the_insert
+    end
+  end
+
+  def the_insert(value, index)
+    node_address = at_index(index).object_id
+    node_before = at_index(index - 1)
+    node_before.pointer = Node.new(value).object_id
+    at_index(index).pointer = node_address
   end
 end
